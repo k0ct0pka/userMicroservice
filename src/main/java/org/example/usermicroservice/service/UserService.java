@@ -19,6 +19,8 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private StorageService s3;
+    @Autowired
+    private User user;
 
     public UserService() throws InstantiationException, IllegalAccessException {
     }
@@ -87,12 +89,6 @@ public class UserService {
         userRepository.save(user);
         return user.getUserName();
     }
-    public String updateUserName(Integer id, String userName) {
-        User user = userRepository.findById(id).orElseThrow();
-        user.setUserName(userName);
-        userRepository.save(user);
-        return user.getUserName();
-    }
     public String deleteUserName(Integer id) {
         User user = userRepository.findById(id).orElseThrow();
         user.setUserName("");
@@ -104,12 +100,6 @@ public class UserService {
         return user.getNickname();
     }
     public String setNickName(Integer id, String nickName) {
-        User user = userRepository.findById(id).orElseThrow();
-        user.setNickname(nickName);
-        userRepository.save(user);
-        return user.getNickname();
-    }
-    public String updateNickName(Integer id, String nickName) {
         User user = userRepository.findById(id).orElseThrow();
         user.setNickname(nickName);
         userRepository.save(user);
@@ -168,5 +158,132 @@ public class UserService {
         user.setFollowersIds("");
         userRepository.save(user);
         return user.getFollowersIds();
+    }
+    public String getSubscribesIds(Integer id) {
+        User user = userRepository.findById(id).orElseThrow();
+        return user.getSubscribesIds();
+    }
+    public String setSubscribesIds(Integer id, String subscribesIds) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setSubscribesIds(subscribesIds);
+        userRepository.save(user);
+        return user.getSubscribesIds();
+    }
+    public String deleteSubscribesIds(Integer id) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setSubscribesIds("");
+        userRepository.save(user);
+        return user.getSubscribesIds();
+    }
+    public String getGroupsIds(Integer id) {
+        User user = userRepository.findById(id).orElseThrow();
+        return user.getGroupsIds();
+    }
+    public String setGroupsIds(Integer id , String groupIds){
+        User user = userRepository.findById(id).orElseThrow();
+        user.setGroupsIds(groupIds);
+        userRepository.save(user);
+        return user.getGroupsIds();
+    }
+    public String deleteGroupsIds(Integer id) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setGroupsIds("");
+        userRepository.save(user);
+        return user.getGroupsIds();
+    }
+    public Integer getReports(Integer id) {
+        User user = userRepository.findById(id).orElseThrow();
+        return user.getReports();
+    }
+    public Integer setReports(Integer id , Integer reports) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setReports(reports);
+        userRepository.save(user);
+        return user.getReports();
+    }
+    public Integer deleteReports(Integer id) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setReports(0);
+        userRepository.save(user);
+        return 0;
+    }
+    public Boolean getBanned(Integer id) {
+        User user = userRepository.findById(id).orElseThrow();
+        return user.getBanned();
+    }
+    public Boolean banUser(Integer id) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setBanned(true);
+        userRepository.save(user);
+        return true;
+    }
+    public Boolean unBanUser(Integer id) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setBanned(false);
+        return false;
+    }
+    public Integer getFollowersCount(Integer id) {
+        User user = userRepository.findById(id).orElseThrow();
+        return user.getFollowersCount();
+    }
+    public Integer setFollowersCount(Integer id , Integer followersCount) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setFollowersCount(followersCount);
+        userRepository.save(user);
+        return user.getFollowersCount();
+    }
+    public Integer deleteFollowersCount(Integer id) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setFollowersCount(0);
+        userRepository.save(user);
+        return user.getFollowersCount();
+    }
+    public Integer getLikesCount(Integer id) {
+        User user = userRepository.findById(id).orElseThrow();
+        return user.getLikesCount();
+    }
+    public Integer setLikesCount(Integer id , Integer likesCount) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setLikesCount(likesCount);
+        userRepository.save(user);
+        return user.getLikesCount();
+    }
+    public Integer deleteLikesCount(Integer id) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setLikesCount(0);
+        userRepository.save(user);
+        return user.getLikesCount();
+    }
+    public Integer getSubscribesCount(Integer id) {
+        User user = userRepository.findById(id).orElseThrow();
+        return user.getSubscribesCount();
+    }
+    public Integer setSubscribesCount(Integer id , Integer subscribesCount) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setSubscribesCount(subscribesCount);
+        userRepository.save(user);
+        return user.getSubscribesCount();
+    }
+    public Integer deleteSubscribesCount(Integer id) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setSubscribesCount(0);
+        userRepository.save(user);
+        return user.getSubscribesCount();
+    }
+    public String getEmail(Integer id) {
+        User user = userRepository.findById(id).orElseThrow();
+        return user.getEmail();
+    }
+    public String setEmail(Integer id,String email){
+        User user = userRepository.findById(id).orElseThrow();
+        user.setEmail(email);
+        userRepository.save(user);
+        return user.getEmail();
+    }
+    public String deleteEmail(Integer id) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setEmail("");
+        userRepository.save(user);
+        return "";
     }
 }
