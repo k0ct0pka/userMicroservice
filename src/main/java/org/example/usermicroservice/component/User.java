@@ -25,4 +25,19 @@ public class User implements Serializable {
     private Long id;
     @ColumnDefault("")
     private String profileImageId;
+    private String userName;
+    private String nickname;
+    private String login;
+    private String password;
+    private String followersIds;
+    private String subscribesIds;
+    private String groupsIds;
+    private String repostsIds;
+    private String postsLiked;
+    private Integer reports;
+    private Integer followersCount;
+    private Integer subscribesCount;
+    private Integer likesCount;
+    private Boolean banned;
+    private String email;
 }

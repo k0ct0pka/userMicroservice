@@ -21,12 +21,22 @@ public class UserController {
         userService.createUser(user);
         return user;
     }
+    @PutMapping("{id}")
+    public User updateUser( @RequestBody User user){
+        userService.updateUser(user);
+        return user;
+    }
+    @DeleteMapping("{id}")
+    public void deleteUser( @PathVariable("id") int id){
+        userService.deleteUser(id);
+    }
     @Cacheable(key = "#id",value = "user")
     @GetMapping("{id}")
     public User getUserById(@PathVariable Integer id){
         userService.getUserById(id);
         return userService.getUserById(id);
     }
+
     @GetMapping
     public List<User> getAllUsers(){
         return userService.getAllUsers();
@@ -43,5 +53,26 @@ public class UserController {
     @DeleteMapping("profile/image/{id}")
     public void deleteProfileImage(@PathVariable Integer id){
         userService.deleteProfileImage(id);
+    }
+    @PutMapping("profile/image/{id}")
+    public @ResponseBody byte[] updateProfileImage(@PathVariable Integer id, @RequestBody MultipartFile file){
+        return userService.updateProfileImage(file,id);
+    }
+    @Cacheable(key = "#id",value = "userName")
+    @GetMapping("userName/{id}")
+    public String getUserName(@PathVariable Integer id){
+        User userById = userService.getUserById(id);
+        return userById.getUserName();
+    }
+    @DeleteMapping("userName/{id}")
+    public void deleteUserName(@PathVariable Integer id){
+        userService.deleteUserName(id);
+    }
+    @PostMapping("userName/{id}")
+    public String setUserName(@PathVariable Integer id, @RequestParam("userName") String userName){
+        User userById = userService.getUserById(id);
+        userById.setUserName(userName);
+        userService.updateUser(userById);
+        return userById.getUserName();
     }
 }
