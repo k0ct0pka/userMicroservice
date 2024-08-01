@@ -1,8 +1,10 @@
 package org.example.usermicroservice.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.usermicroservice.Clients.GroupsClient;
 import org.example.usermicroservice.Repository.UserRepository;
 import org.example.usermicroservice.component.User;
+import org.example.usermicroservice.dto.Group;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +24,8 @@ public class UserService {
     private StorageService s3;
     @Autowired
     private User user;
+    @Autowired
+    private GroupsClient groupsClient;
 
     public UserService() throws InstantiationException, IllegalAccessException {
     }
@@ -366,7 +370,27 @@ public class UserService {
         List<User> subscribes = new ArrayList<>();
         return getUsers(count, subscribesIds, subscribes);
     }
-
+    public List<Group> getSubscribedGroups(Integer id,int count) {
+        User user = userRepository.findById(id).orElseThrow();
+        List<Integer> groupsIds = user.getSubscribesIds();
+        return groupsClient.getGroupsByIds(groupsIds,count);
+    }
+    public List<Group> getCreatedGroups(Integer id,int count) {
+        User user = userRepository.findById(id).orElseThrow();
+        return groupsClient.getGroupsByOwner(id,count);
+    }
+    public User joinGroup(Integer groupId, Integer userId){
+        groupsClient.addMember(userId,groupId);
+        User user = userRepository.findById(userId).orElseThrow();
+        user.getGroupsIds().add(groupId);
+        return user;
+    }
+    public User leaveGroup(Integer groupId, Integer userId){
+        User user = userRepository.findById(userId).orElseThrow();
+        user.getGroupsIds().remove(groupId);
+        groupsClient.deleteMemberById(userId,groupId);
+        return user;
+    }
     private List<User> getUsers(int count, List<Integer> subscribesIds, List<User> result) {
         int current = 0;
         for (Integer subscribesId : subscribesIds) {
@@ -379,5 +403,6 @@ public class UserService {
         }
         return result;
     }
+
 
 }
