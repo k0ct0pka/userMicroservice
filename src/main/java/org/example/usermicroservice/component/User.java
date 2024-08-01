@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.List;
 
 @Setter
 @Getter
@@ -29,11 +30,16 @@ public class User implements Serializable {
     private String nickname;
     private String login;
     private String password;
-    private String followersIds;
-    private String subscribesIds;
-    private String groupsIds;
-    private String repostsIds;
-    private String postsLiked;
+    @ElementCollection
+    private List<Integer> followersIds;
+    @ElementCollection
+    private List<Integer> subscribesIds;
+    @ElementCollection
+    private List<Integer> groupsIds;
+    @ElementCollection
+    private List<Integer> repostsIds;
+    @ElementCollection
+    private List<Integer> postsLiked;
     private Integer reports;
     private Integer followersCount;
     private Integer subscribesCount;

@@ -163,59 +163,59 @@ public class UserService {
         return user.getPassword();
     }
 
-    public String getFollowersIds(Integer id) {
+    public List<Integer> getFollowersIds(Integer id) {
         User user = userRepository.findById(id).orElseThrow();
         return user.getFollowersIds();
     }
 
-    public String setFollowersIds(Integer id, String followersIds) {
+    public List<Integer> setFollowersIds(Integer id, List<Integer> followersIds) {
         User user = userRepository.findById(id).orElseThrow();
         user.setFollowersIds(followersIds);
         userRepository.save(user);
         return user.getFollowersIds();
     }
 
-    public String deleteFollowersIds(Integer id) {
+    public List<Integer> deleteFollowersIds(Integer id) {
         User user = userRepository.findById(id).orElseThrow();
-        user.setFollowersIds("");
+        user.setFollowersIds(new ArrayList<>());
         userRepository.save(user);
         return user.getFollowersIds();
     }
 
-    public String getSubscribesIds(Integer id) {
+    public List<Integer> getSubscribesIds(Integer id) {
         User user = userRepository.findById(id).orElseThrow();
         return user.getSubscribesIds();
     }
 
-    public String setSubscribesIds(Integer id, String subscribesIds) {
+    public List<Integer> setSubscribesIds(Integer id, List<Integer> subscribesIds) {
         User user = userRepository.findById(id).orElseThrow();
         user.setSubscribesIds(subscribesIds);
         userRepository.save(user);
         return user.getSubscribesIds();
     }
 
-    public String deleteSubscribesIds(Integer id) {
+    public List<Integer> deleteSubscribesIds(Integer id) {
         User user = userRepository.findById(id).orElseThrow();
-        user.setSubscribesIds("");
+        user.setSubscribesIds(new ArrayList<>());
         userRepository.save(user);
         return user.getSubscribesIds();
     }
 
-    public String getGroupsIds(Integer id) {
+    public List<Integer> getGroupsIds(Integer id) {
         User user = userRepository.findById(id).orElseThrow();
         return user.getGroupsIds();
     }
 
-    public String setGroupsIds(Integer id, String groupIds) {
+    public List<Integer> setGroupsIds(Integer id, List<Integer> groupIds) {
         User user = userRepository.findById(id).orElseThrow();
         user.setGroupsIds(groupIds);
         userRepository.save(user);
         return user.getGroupsIds();
     }
 
-    public String deleteGroupsIds(Integer id) {
+    public List<Integer> deleteGroupsIds(Integer id) {
         User user = userRepository.findById(id).orElseThrow();
-        user.setGroupsIds("");
+        user.setGroupsIds(new ArrayList<>());
         userRepository.save(user);
         return user.getGroupsIds();
     }
@@ -332,21 +332,52 @@ public class UserService {
         userRepository.save(user);
         return "";
     }
-    public List<User> getFollowers(Integer id) {
+    public List<User> getFollowers(Integer id,int count) {
         User user = userRepository.findById(id).orElseThrow();
-        String followers_ids = user.getFollowersIds();
+        List<Integer> followers_ids = user.getFollowersIds();
         List<User> followers = new ArrayList<User>();
-        for (String followers_id : followers_ids.split(",")) {
-            User follower = userRepository.findById(Integer.parseInt(followers_id)).orElseThrow();
-            followers.add(follower);
-        }
-        return followers;
+        return getUsers(count, followers_ids, followers);
     }
     public User followOnAndGetWhoFollowed(Integer idWho , Integer idOn) {
-        User user = userRepository.findById(idOn).orElseThrow();
-        setFollowersIds(idOn, user.getFollowersIds() + "," + idWho);
-        setFollowersCount(idOn, user.getFollowersCount() + 1);
+        User userOnFollowed = userRepository.findById(idOn).orElseThrow();
+        userOnFollowed.getFollowersIds().add(idWho);
+        setFollowersIds(idOn, userOnFollowed.getFollowersIds());
+        setFollowersCount(idOn, userOnFollowed.getFollowersCount() + 1);
+        User userWhoFollowed = userRepository.findById(idWho).orElseThrow();
+        userWhoFollowed.getSubscribesIds().add(idOn);
+        setSubscribesIds(idWho, userWhoFollowed.getSubscribesIds());
+        setSubscribesCount(idWho, userWhoFollowed.getSubscribesCount() + 1);
         return userRepository.findById(idWho).orElseThrow();
+    }
+    public User unfollowOn(Integer idWho, Integer idOn){
+        User userOn = userRepository.findById(idOn).orElseThrow();
+        user.getFollowersIds().remove(idWho);
+        setFollowersIds(idOn, user.getFollowersIds());
+        setFollowersCount(idOn, userOn.getFollowersCount() - 1);
+        User userWhoFollowed = userRepository.findById(idWho).orElseThrow();
+        userWhoFollowed.getSubscribesIds().remove(idOn);
+        setSubscribesIds(idWho, userWhoFollowed.getSubscribesIds());
+        setSubscribesCount(idWho, userWhoFollowed.getSubscribesCount() - 1);
+        return userRepository.findById(idWho).orElseThrow();
+    }
+    public List<User> getSubscribedUsers(Integer id,int count) {
+        User user = userRepository.findById(id).orElseThrow();
+        List<Integer> subscribesIds = user.getSubscribesIds();
+        List<User> subscribes = new ArrayList<>();
+        return getUsers(count, subscribesIds, subscribes);
+    }
+
+    private List<User> getUsers(int count, List<Integer> subscribesIds, List<User> result) {
+        int current = 0;
+        for (Integer subscribesId : subscribesIds) {
+            User subscribe = userRepository.findById(subscribesId).orElseThrow();
+            result.add(subscribe);
+            current++;
+            if(current == count) {
+                return result;
+            }
+        }
+        return result;
     }
 
 }
