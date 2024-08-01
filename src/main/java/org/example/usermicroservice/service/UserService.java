@@ -10,10 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -390,6 +387,29 @@ public class UserService {
         user.getGroupsIds().remove(groupId);
         groupsClient.deleteMemberById(userId,groupId);
         return user;
+    }
+    public boolean removeUserFromGroup(Integer idWho,Integer userId, Integer groupId){
+        if(Objects.equals(idWho, userId))return false;
+        if(isOwner(userId,groupId))return false;
+        else if(isOwner(idWho,groupId)){
+            leaveGroup(groupId,userId);
+            groupsClient.deleteMemberById(userId,groupId);
+            return true;
+        }else if(isAdmin(idWho,groupId)){
+            if(isAdmin(userId,groupId)){
+                return false;
+            } else{
+                leaveGroup(groupId,userId);
+                groupsClient.deleteMemberById(userId,groupId);
+            }
+        }
+        return false;
+    }
+    private boolean isAdmin(Integer id,Integer groupId){
+        return groupsClient.getAdminsIds(groupId).contains(id);
+    }
+    private boolean isOwner(Integer id,Integer groupId){
+        return groupsClient.getOwnerId(groupId).equals(id);
     }
     private List<User> getUsers(int count, List<Integer> subscribesIds, List<User> result) {
         int current = 0;

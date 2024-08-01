@@ -22,4 +22,8 @@ public interface GroupsClient {
     void deleteMemberById(@PathVariable("id") Integer id,@RequestParam("groupId") Integer groupId);
     @PostMapping("/user/{id}")
     void addMember(@PathVariable("id") Integer userId,@RequestParam("groupId") Integer groupId);
+    @GetMapping("/owner")
+    Integer getOwnerId(@RequestParam("groupId") Integer groupId);
+    @GetMapping("/admins")
+    List<Integer> getAdminsIds(@RequestParam("groupId") Integer groupId);
 }
