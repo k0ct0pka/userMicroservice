@@ -21,4 +21,6 @@ public interface PostClient {
     void likePost(@RequestParam("postId") Integer postId);
     @PutMapping("/user/comment")
     void commentPost(@RequestParam("postId") Integer postId, @RequestParam("commentId") Integer commentId);
+    @PostMapping("/user/repost")
+    void repostPost(@RequestParam("postId") Integer postId);
 }

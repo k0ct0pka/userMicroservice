@@ -1,10 +1,12 @@
 package org.example.usermicroservice.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.usermicroservice.Clients.CommentClient;
 import org.example.usermicroservice.Clients.GroupsClient;
 import org.example.usermicroservice.Clients.PostClient;
 import org.example.usermicroservice.Repository.UserRepository;
 import org.example.usermicroservice.component.User;
+import org.example.usermicroservice.dto.Comment;
 import org.example.usermicroservice.dto.Group;
 import org.example.usermicroservice.dto.Post;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,8 @@ public class UserService {
     private EmailSenderService emailSender;
     @Autowired
     private PostClient postClient;
+    @Autowired
+    private CommentClient commentClient;
 
     public UserService() throws InstantiationException, IllegalAccessException {
     }
@@ -409,11 +413,13 @@ public class UserService {
         groupsClient.addMember(userId,groupId);
         User user = userRepository.findById(userId).orElseThrow();
         user.getGroupsIds().add(groupId);
+        userRepository.save(user);
         return user;
     }
     public User leaveGroup(Integer groupId, Integer userId){
         User user = userRepository.findById(userId).orElseThrow();
         user.getGroupsIds().remove(groupId);
+        userRepository.save(user);
         groupsClient.deleteMemberById(userId,groupId);
         return user;
     }
@@ -445,10 +451,51 @@ public class UserService {
     public void likePost(Integer postId, Integer userId){
         User user = userRepository.findById(userId).orElseThrow();
         user.getPostsLiked().add(postId);
+        userRepository.save(user);
         postClient.likePost(postId);
     }
+    public void deletePost(Integer postId, Integer userId){
+        User user = userRepository.findById(userId).orElseThrow();
+        user.getPostsLiked().remove(postId);
+        userRepository.save(user);
+    }
+    public void unlikePost(Integer postId,Integer userId){
+        User user = userRepository.findById(userId).orElseThrow();
+        user.getPostsLiked().remove(postId);
+        userRepository.save(user);
+        postClient.likePost(postId);
+    }
+    public List<Post> getReposts(Integer userId,int count){
+        User user = userRepository.findById(userId).orElseThrow();
+        List<Post> postsByIds = postClient.getPostsByIds(user.getRepostsIds(), count);
+        return postsByIds;
+    }
+    public void repost(Integer postId, Integer userId){
+        User user = userRepository.findById(userId).orElseThrow();
+        user.getRepostsIds().add(postId);
+        userRepository.save(user);
+        postClient.repostPost(postId);
+    }
+    public void unRepost(Integer postId, Integer userId){
+        User user = userRepository.findById(userId).orElseThrow();
+        user.getRepostsIds().remove(postId);
+        userRepository.save(user);
+        postClient.repostPost(postId);
+    }
     public void commentPost(Integer postId, Integer userId,String comment){
-
+        Comment comment1 = new Comment();
+        comment1.setUserId(userId);
+        comment1.setPostId(postId);
+        comment1.setLikes(0);
+        comment1.setText(comment);
+        postClient.commentPost(postId,commentClient.createComment(comment1).getId());
+    }
+    public List<Comment> getCommentsOfUser(Integer userId,int count){
+        List<Comment> commentsByUser = commentClient.getCommentsByUser(userId, count);
+        return commentsByUser;
+    }
+    public void deleteComment(Integer userId,Integer commentId){
+        commentClient.deleteComment(commentId,userId);
     }
     private boolean isAdmin(Integer id,Integer groupId){
         return groupsClient.getAdminsIds(groupId).contains(id);
