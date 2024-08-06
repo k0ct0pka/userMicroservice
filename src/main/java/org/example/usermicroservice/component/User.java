@@ -40,6 +40,8 @@ public class User implements Serializable {
     private List<Integer> repostsIds;
     @ElementCollection
     private List<Integer> postsLiked;
+    @ElementCollection
+    private List<Integer> posts;
     private Integer reports;
     private Integer followersCount;
     private Integer subscribesCount;

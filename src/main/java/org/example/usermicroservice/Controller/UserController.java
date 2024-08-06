@@ -17,9 +17,9 @@ public class UserController {
     @Autowired
     private UserService userService;
     @PostMapping("")
-    public User createUser(@RequestBody User user){
-        userService.createUser(user);
-        return user;
+    public String createUser(@RequestBody User user){
+        String code = userService.createUser(user);
+        return code;
     }
     @PutMapping("{id}")
     public User updateUser( @RequestBody User user){

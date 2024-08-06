@@ -2,9 +2,11 @@ package org.example.usermicroservice.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.usermicroservice.Clients.GroupsClient;
+import org.example.usermicroservice.Clients.PostClient;
 import org.example.usermicroservice.Repository.UserRepository;
 import org.example.usermicroservice.component.User;
 import org.example.usermicroservice.dto.Group;
+import org.example.usermicroservice.dto.Post;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,12 +25,40 @@ public class UserService {
     private User user;
     @Autowired
     private GroupsClient groupsClient;
+    @Autowired
+    private EmailSenderService emailSender;
+    @Autowired
+    private PostClient postClient;
 
     public UserService() throws InstantiationException, IllegalAccessException {
     }
 
-    public void createUser(User user) {
-        userRepository.save(user);
+    public String createUser(User user) {
+        Optional<User> byUsername = userRepository.findByUserName(user.getUserName());
+        Optional<User> byEmail = userRepository.findByEmail(user.getEmail());
+        Optional<User> byPassword = userRepository.findByPassword(user.getPassword());
+        Optional<User> byLogin = userRepository.findByLogin(user.getLogin());
+        if (byUsername.isPresent()) {
+            throw new RuntimeException("User must to have specific username");
+        } else if (byEmail.isPresent()) {
+            throw new RuntimeException("User must to have specific email");
+        } else if (byPassword.isPresent()) {
+            throw new RuntimeException("User must to have specific password");
+        } else if (byLogin.isPresent()) {
+            throw new RuntimeException("User must to have specific login");
+        } else{
+            String code = sendConfirmationCode(user.getEmail());
+            return code;
+        }
+    }
+
+    private String sendConfirmationCode(String email) {
+        StringBuffer buffer = new StringBuffer();
+        for (int i = 0; i < 6; i++) {
+            buffer.append((int)(Math.random()*9));
+        }
+        emailSender.sendMail(email,"MMesavice - confirmation code","Hello it's your confirmation code - "+buffer.toString());
+        return buffer.toString();
     }
 
     public byte[] uploadProfileImage(MultipartFile file, Integer userId) {
@@ -369,11 +399,10 @@ public class UserService {
     }
     public List<Group> getSubscribedGroups(Integer id,int count) {
         User user = userRepository.findById(id).orElseThrow();
-        List<Integer> groupsIds = user.getSubscribesIds();
+        List<Integer> groupsIds = user.getGroupsIds();
         return groupsClient.getGroupsByIds(groupsIds,count);
     }
     public List<Group> getCreatedGroups(Integer id,int count) {
-        User user = userRepository.findById(id).orElseThrow();
         return groupsClient.getGroupsByOwner(id,count);
     }
     public User joinGroup(Integer groupId, Integer userId){
@@ -404,6 +433,22 @@ public class UserService {
             }
         }
         return false;
+    }
+    public List<Post> getPostOfUser(Integer userId,int count){
+        List<Post> postsByOwner = postClient.getPostsByOwner(userId, count);
+        return postsByOwner;
+    }
+    public List<Post> getLikedPosts(Integer userId,int count){
+        User user = userRepository.findById(userId).orElseThrow();
+        return postClient.getPostsByIds(user.getPostsLiked(),count);
+    }
+    public void likePost(Integer postId, Integer userId){
+        User user = userRepository.findById(userId).orElseThrow();
+        user.getPostsLiked().add(postId);
+        postClient.likePost(postId);
+    }
+    public void commentPost(Integer postId, Integer userId,String comment){
+
     }
     private boolean isAdmin(Integer id,Integer groupId){
         return groupsClient.getAdminsIds(groupId).contains(id);
