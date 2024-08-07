@@ -1,5 +1,6 @@
 package org.example.usermicroservice.service;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.example.usermicroservice.Clients.CommentClient;
 import org.example.usermicroservice.Clients.GroupsClient;
@@ -11,6 +12,8 @@ import org.example.usermicroservice.dto.Group;
 import org.example.usermicroservice.dto.Post;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -36,6 +39,10 @@ public class UserService {
 
     public UserService() throws InstantiationException, IllegalAccessException {
     }
+    public static HttpSession session() {
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        return attr.getRequest().getSession(true);
+    }
 
     public String createUser(User user) {
         Optional<User> byUsername = userRepository.findByUserName(user.getUserName());
@@ -52,10 +59,19 @@ public class UserService {
             throw new RuntimeException("User must to have specific login");
         } else{
             String code = sendConfirmationCode(user.getEmail());
+            session().setAttribute("code",code);
+            session().setAttribute("user", user);
             return code;
         }
     }
-
+    public void confirmCreation(String code) {
+        if(session().getAttribute("code").equals(code)) {
+            User user = (User) session().getAttribute("user");
+            userRepository.save(user);
+        } else {
+            throw new RuntimeException("Provided code does not match");
+        }
+    }
     private String sendConfirmationCode(String email) {
         StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < 6; i++) {

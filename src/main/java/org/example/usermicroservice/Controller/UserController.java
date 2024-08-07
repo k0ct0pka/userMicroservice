@@ -8,6 +8,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.http.HttpRequest;
 import java.util.List;
 
 @RestController
@@ -19,6 +20,7 @@ public class UserController {
     @PostMapping("")
     public String createUser(@RequestBody User user){
         String code = userService.createUser(user);
+        
         return code;
     }
     @PutMapping("{id}")
