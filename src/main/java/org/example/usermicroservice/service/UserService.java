@@ -218,6 +218,14 @@ public class UserService {
         } else throw new RuntimeException("Incorrect password");
 
     }
+    public String changeEmail(Integer id, String password, String email) {
+        User user = userRepository.findById(id).orElseThrow();
+        if (bCryptPasswordEncoder.matches(password, user.getPassword())) {
+            user.setEmail(email);
+            userRepository.save(user);
+            return user.getEmail();
+        } else throw new RuntimeException("Incorrect password");
+    }
 
     public String deleteLogin(Integer id) {
         User user = userRepository.findById(id).orElseThrow();
@@ -464,6 +472,12 @@ public class UserService {
         return groupsClient.getGroupsByOwner(id, count);
     }
 
+    public List<User> getGroupMembers(Integer groupId){
+        List<Integer> membersIds = groupsClient.getMembersIds(groupId);
+        List<User> members = new ArrayList<>();
+        return getUsers(membersIds.size(), membersIds, members);
+    }
+
     public User joinGroup(Integer groupId, Integer userId) {
         groupsClient.addMember(userId, groupId);
         User user = userRepository.findById(userId).orElseThrow();
@@ -586,6 +600,7 @@ public class UserService {
         }
         return result;
     }
+
 
 
 }

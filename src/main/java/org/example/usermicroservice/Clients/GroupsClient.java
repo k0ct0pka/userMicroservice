@@ -16,6 +16,8 @@ public interface GroupsClient {
     public List<Group> getGroupsByIds(@RequestParam("ids") List<Integer> ids,int count);
     @GetMapping("/owner/{id}")
     List<Group> getGroupsByOwner(@PathVariable("id") Integer id,int count);
+    @GetMapping("/members/{id}")
+    List<Integer> getMembersIds(@PathVariable("id") Integer id);
     @GetMapping("/{id}")
     Group getGroupById(@PathVariable("id") Integer id);
     @DeleteMapping("/user/{id}")
