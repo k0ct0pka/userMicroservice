@@ -20,18 +20,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("registration")
-    public String createUser(@RequestBody User user){
-        return userService.createUser(user);
-    }
-    @PostMapping("registration/confirm")
-    public @ResponseBody User confirmUser(@RequestParam("code") String code){
-        return userService.confirmCreation(code);
-    }
-    @GetMapping("logIn")
-    public @ResponseBody User login(@RequestParam("login") String login, @RequestParam("password") String password){
-        return userService.logIn(login,password);
-    }
+
     @Cacheable(key = "current",value = "currentUser")
     @GetMapping("current")
     public @ResponseBody User getCurrentUser(){
