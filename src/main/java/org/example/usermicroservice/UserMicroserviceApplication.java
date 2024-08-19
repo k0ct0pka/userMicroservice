@@ -1,5 +1,6 @@
 package org.example.usermicroservice;
 
+import org.example.usermicroservice.Validators.ValidatorsMap;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -17,5 +18,9 @@ public class UserMicroserviceApplication {
     @Bean
     public org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+    }
+    @Bean
+    public ValidatorsMap validatorsMap() {
+        return new ValidatorsMap();
     }
 }

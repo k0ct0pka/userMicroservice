@@ -6,6 +6,8 @@ import org.example.usermicroservice.Clients.CommentClient;
 import org.example.usermicroservice.Clients.GroupsClient;
 import org.example.usermicroservice.Clients.PostClient;
 import org.example.usermicroservice.Repository.UserRepository;
+import org.example.usermicroservice.Validators.Validator;
+import org.example.usermicroservice.Validators.ValidatorsMap;
 import org.example.usermicroservice.component.User;
 import org.example.usermicroservice.dto.Comment;
 import org.example.usermicroservice.dto.Group;
@@ -39,6 +41,8 @@ public class UserService {
     private CommentClient commentClient;
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Autowired
+    private ValidatorsMap validatorsMap;
 
     public UserService() throws InstantiationException, IllegalAccessException {
     }
@@ -49,6 +53,14 @@ public class UserService {
     }
 
     public String createUser(User user) {
+        Validator loginValidator = validatorsMap.getValidators().get("login");
+        loginValidator.validate(user.getLogin());
+        Validator passwordValidator = validatorsMap.getValidators().get("password");
+        passwordValidator.validate(user.getPassword());
+        Validator emailValidator = validatorsMap.getValidators().get("email");
+        emailValidator.validate(user.getEmail());
+        Validator usernameValidator = validatorsMap.getValidators().get("username");
+        usernameValidator.validate(user.getUserName());
         Optional<User> byUsername = userRepository.findByUserName(user.getUserName());
         Optional<User> byEmail = userRepository.findByEmail(user.getEmail());
         Optional<User> byPassword = userRepository.findByPassword(user.getPassword());
@@ -81,14 +93,16 @@ public class UserService {
     }
 
     public User logIn(String login, String password) {
-        List<User> users = (List<User>) userRepository.findAll();
-        User user = users.stream()
-                .filter(x -> x.getLogin() != null)
-                .filter(x -> x.getLogin().equals(login))
-                .filter(x -> bCryptPasswordEncoder.matches(password, x.getPassword()))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return user;
+        Validator loginValidator = validatorsMap.getValidators().get("login");
+        loginValidator.validate(login);
+        Validator passwordValidator = validatorsMap.getValidators().get("password");
+        passwordValidator.validate(password);
+        User user = userRepository.findByLogin(login).orElseThrow(()-> new RuntimeException("Invalid login"));
+        if(bCryptPasswordEncoder.matches(password, user.getPassword())) {
+            return user;
+        } else{
+            throw new RuntimeException("Invalid password");
+        }
     }
 
     public void logOut() {
