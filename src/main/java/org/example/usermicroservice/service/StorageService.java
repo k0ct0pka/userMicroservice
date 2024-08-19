@@ -23,16 +23,18 @@ public class StorageService {
     private String bucketName;
     @Autowired
     private AmazonS3 s3Client;
-    public void uploadFile(MultipartFile file,Integer id,String profileImageId) {
+
+    public void uploadFile(MultipartFile file, Integer id, String profileImageId) {
         File fileObj = getFile(file);
-        String fileName = "/profile-images/"+id+"/"+profileImageId;
-        s3Client.putObject(new PutObjectRequest(bucketName,fileName,fileObj));
+        String fileName = "/profile-images/" + id + "/" + profileImageId;
+        s3Client.putObject(new PutObjectRequest(bucketName, fileName, fileObj));
         fileObj.delete();
         log.info("File uploadded{}", fileName);
     }
-    public byte[] downloadFile(Integer id,String profileImageId) {
+
+    public byte[] downloadFile(Integer id, String profileImageId) {
         System.out.println(profileImageId);
-        S3Object object = s3Client.getObject(bucketName,"/profile-images/"+id+"/"+profileImageId);
+        S3Object object = s3Client.getObject(bucketName, "/profile-images/" + id + "/" + profileImageId);
         S3ObjectInputStream inputStream = object.getObjectContent();
         try {
             return IOUtils.toByteArray(inputStream);
@@ -41,16 +43,18 @@ public class StorageService {
         }
         return null;
     }
+
     private File getFile(MultipartFile file) {
         File fileObj = new File(file.getOriginalFilename());
-        try(FileOutputStream fos = new FileOutputStream(fileObj)){
+        try (FileOutputStream fos = new FileOutputStream(fileObj)) {
             fos.write(file.getBytes());
         } catch (IOException e) {
             log.error(e.getMessage());
         }
         return fileObj;
     }
-    public void deleteFile(Integer id,String profileImageId) {
-        s3Client.deleteObject(bucketName,"/profile-images/"+id+"/"+profileImageId);
+
+    public void deleteFile(Integer id, String profileImageId) {
+        s3Client.deleteObject(bucketName, "/profile-images/" + id + "/" + profileImageId);
     }
 }

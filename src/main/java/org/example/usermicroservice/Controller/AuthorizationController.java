@@ -10,16 +10,19 @@ import org.springframework.web.bind.annotation.*;
 public class AuthorizationController {
     @Autowired
     private UserService userService;
+
     @PostMapping("registration")
-    public String createUser(@RequestBody User user){
+    public String createUser(@RequestBody User user) {
         return userService.createUser(user);
     }
+
     @PostMapping("registration/confirm")
-    public @ResponseBody User confirmUser(@RequestParam("code") String code){
+    public @ResponseBody User confirmUser(@RequestParam("code") String code) {
         return userService.confirmCreation(code);
     }
+
     @GetMapping("logIn")
-    public @ResponseBody User login(@RequestParam("login") String login, @RequestParam("password") String password){
-        return userService.logIn(login,password);
+    public @ResponseBody User login(@RequestParam("login") String login, @RequestParam("password") String password) {
+        return userService.logIn(login, password);
     }
 }

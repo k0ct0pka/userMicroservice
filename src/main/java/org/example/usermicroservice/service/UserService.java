@@ -83,20 +83,22 @@ public class UserService {
     public User logIn(String login, String password) {
         List<User> users = (List<User>) userRepository.findAll();
         User user = users.stream()
-                .filter(x -> x.getLogin()!=null)
+                .filter(x -> x.getLogin() != null)
                 .filter(x -> x.getLogin().equals(login))
                 .filter(x -> bCryptPasswordEncoder.matches(password, x.getPassword()))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return user;
     }
-    public void logOut(){
+
+    public void logOut() {
         session().removeAttribute("code");
         session().removeAttribute("user");
     }
-    public User getCurrentUser(){
+
+    public User getCurrentUser() {
         Object user = session().getAttribute("user");
-        if(user==null) throw new RuntimeException("User not found");
+        if (user == null) throw new RuntimeException("User not found");
         return (User) user;
     }
 
@@ -105,7 +107,7 @@ public class UserService {
         for (int i = 0; i < 6; i++) {
             buffer.append((int) (Math.random() * 9));
         }
-        emailSender.sendMail(email, "MMesavice - confirmation code", "Hello it's your confirmation code - " + buffer.toString());
+        emailSender.sendMail(email, "MMesavice - confirmation code", "Hello it's your confirmation code - " + buffer);
         return buffer.toString();
     }
 
@@ -209,7 +211,7 @@ public class UserService {
         return user.getLogin();
     }
 
-    public String changeLogin(Integer id, String login,String password) {
+    public String changeLogin(Integer id, String login, String password) {
         User user = userRepository.findById(id).orElseThrow();
         if (bCryptPasswordEncoder.matches(password, user.getPassword())) {
             user.setLogin(login);
@@ -218,6 +220,7 @@ public class UserService {
         } else throw new RuntimeException("Incorrect password");
 
     }
+
     public String changeEmail(Integer id, String password, String email) {
         User user = userRepository.findById(id).orElseThrow();
         if (bCryptPasswordEncoder.matches(password, user.getPassword())) {
@@ -472,7 +475,7 @@ public class UserService {
         return groupsClient.getGroupsByOwner(id, count);
     }
 
-    public List<User> getGroupMembers(Integer groupId){
+    public List<User> getGroupMembers(Integer groupId) {
         List<Integer> membersIds = groupsClient.getMembersIds(groupId);
         List<User> members = new ArrayList<>();
         return getUsers(membersIds.size(), membersIds, members);
@@ -600,7 +603,6 @@ public class UserService {
         }
         return result;
     }
-
 
 
 }

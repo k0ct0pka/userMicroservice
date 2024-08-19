@@ -6,10 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-import org.springframework.data.redis.core.RedisHash;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.List;
 
