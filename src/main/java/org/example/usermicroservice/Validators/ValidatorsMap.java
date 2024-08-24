@@ -18,4 +18,10 @@ public class ValidatorsMap {
         validators.put("email", new EmailValidator());
         validators.put("username", new UsernameValidator());
     }
+    public void validate(String input,String validatorType) {
+        Validator validator = validators.get(input);
+        if (validator != null) {
+            validator.validate(input);
+        }
+    }
 }

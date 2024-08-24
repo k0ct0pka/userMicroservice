@@ -25,4 +25,8 @@ public class AuthorizationController {
     public @ResponseBody User login(@RequestParam("login") String login, @RequestParam("password") String password) {
         return userService.logIn(login, password);
     }
+    @PostMapping("logOut")
+    public void logOut() {
+        userService.logOut();
+    }
 }

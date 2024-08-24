@@ -19,6 +19,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.sound.midi.Sequence;
 import java.io.IOException;
 import java.util.*;
 
@@ -29,8 +30,6 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private StorageService s3;
-    @Autowired
-    private User user;
     @Autowired
     private GroupsClient groupsClient;
     @Autowired
@@ -53,14 +52,10 @@ public class UserService {
     }
 
     public String createUser(User user) {
-        Validator loginValidator = validatorsMap.getValidators().get("login");
-        loginValidator.validate(user.getLogin());
-        Validator passwordValidator = validatorsMap.getValidators().get("password");
-        passwordValidator.validate(user.getPassword());
-        Validator emailValidator = validatorsMap.getValidators().get("email");
-        emailValidator.validate(user.getEmail());
-        Validator usernameValidator = validatorsMap.getValidators().get("username");
-        usernameValidator.validate(user.getUserName());
+        validatorsMap.validate(user.getLogin(),"login");
+        validatorsMap.validate(user.getPassword(),"password");
+        validatorsMap.validate(user.getEmail(),"email");
+        validatorsMap.validate(user.getUserName(),"username");
         Optional<User> byUsername = userRepository.findByUserName(user.getUserName());
         Optional<User> byEmail = userRepository.findByEmail(user.getEmail());
         Optional<User> byPassword = userRepository.findByPassword(user.getPassword());
@@ -79,8 +74,7 @@ public class UserService {
             session().setAttribute("code", code);
             session().setAttribute("user", user);
             return code;
-        }
-    }
+        }}
 
     public User confirmCreation(String code) {
         if (session().getAttribute("code").equals(code)) {
@@ -93,11 +87,10 @@ public class UserService {
     }
 
     public User logIn(String login, String password) {
-        Validator loginValidator = validatorsMap.getValidators().get("login");
-        loginValidator.validate(login);
-        Validator passwordValidator = validatorsMap.getValidators().get("password");
-        passwordValidator.validate(password);
+
         User user = userRepository.findByLogin(login).orElseThrow(()-> new RuntimeException("Invalid login"));
+        validatorsMap.validate(user.getLogin(),"login");
+        validatorsMap.validate(user.getPassword(),"password");
         if(bCryptPasswordEncoder.matches(password, user.getPassword())) {
             return user;
         } else{
@@ -462,8 +455,8 @@ public class UserService {
 
     public User unfollowOn(Integer idWho, Integer idOn) {
         User userOn = userRepository.findById(idOn).orElseThrow();
-        user.getFollowersIds().remove(idWho);
-        setFollowersIds(idOn, user.getFollowersIds());
+        userOn.getFollowersIds().remove(idWho);
+        setFollowersIds(idOn, userOn.getFollowersIds());
         setFollowersCount(idOn, userOn.getFollowersCount() - 1);
         User userWhoFollowed = userRepository.findById(idWho).orElseThrow();
         userWhoFollowed.getSubscribesIds().remove(idOn);
